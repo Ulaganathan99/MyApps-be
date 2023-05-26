@@ -3,9 +3,7 @@ const bcrypt = require("bcryptjs");
 const User = require("../models/usermodel");
 const nodemailer = require('nodemailer')
 const jwt = require("jsonwebtoken");
-const { promisify } = require("util");
-const fs = require("fs");
-const { log } = require("console");
+
 
 function generateUserId() {
   const numbers = '0123456789';
@@ -84,13 +82,12 @@ exports.signup = asyncHandler(async (req, res) => {
           if (err) {
             reject(err);
           } else {
-            return res.json({ success: "OTP send to your Email." });
             resolve();
           }
         });
       });
-
-      return res.status(200).json({statusCode: 1, email: email, success: "OTP Sent." });
+      console.log('mail sent');
+      return res.json({statusCode: 1, email: email, success: "OTP Sent to your Email." });
     } catch (error) {
       console.error("Error registering user:", error);
       return res.status(500).send("Error registering user");
@@ -163,10 +160,10 @@ exports.login =asyncHandler(async(req,res) => {
           
           return res.json({
             statusCode:1,
-            user: {
+            user: {     
               user_name: userDetails.name,
-              user_id: userDetails.userID
-
+              user_id: userDetails.userID,
+              user_email: userDetails.email
             },
             session_id : token
             });            
@@ -183,12 +180,63 @@ exports.login =asyncHandler(async(req,res) => {
 exports.getUserInfo =asyncHandler(async(req,res) => { 
 
   const { user_id } = req.body;
-  const userDetails = await User.findOne({ userID : user_id })
+  const dbUser = await User.findOne({ userID : user_id })
    res.status(200).json({
     success: true,
-    data: userDetails
+    data: {
+      userID: dbUser.userID,
+      name: dbUser.name,
+      email: dbUser.email,
+      avatar: dbUser.avatar
+    }
   });  
 
+})
+
+exports.editProfile = asyncHandler(async(req,res,next) => {
+  
+    const {userID, name, avatar} = req.body
+    User.findOne({ userID })
+  .then((user) => {
+    if (!user) {
+      // User not found
+      return res.status(404).json({ error: 'User not found' });
+    }
+    console.log(user);
+
+    if(name){
+      user.name = name
+    }
+    if(avatar){
+      user.avatar.data = avatar.data,
+      user.avatar.contentType = avatar.contentType;
+    }
+
+    // Save the updated user
+    return user.save();
+    
+  })
+  .then(async () => {
+    // Avatar data updated successfully
+    const userDetails = await User.findOne({ userID })
+
+
+    return res.json({
+      statusCode: 1,
+      user: {     
+        user_name: userDetails.name,
+        user_id: userDetails.userID,
+        user_email: userDetails.email
+      },
+      });    
+  })
+  .catch((err) => {
+    // Handle the error
+    return res.json({ error: 'Error.' });
+  });
+
+
+    
 })
 
 
