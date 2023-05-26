@@ -21,6 +21,7 @@ app.use(express.urlencoded({extended:false}))  //it is importent to get req boy 
 
 
 app.use('/user', require("./routes/user"))
+app.use('/contact', require("./routes/contact"))
 
 const deleteExpiredUsers = async () => {
     try {
