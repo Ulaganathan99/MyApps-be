@@ -168,7 +168,10 @@ exports.login =asyncHandler(async(req,res) => {
             session_id : token
             });            
       }else {
-          return res.json({ error: 'Incorrect Password.' });
+        res.setHeader('Access-Control-Allow-Origin', 'https://myapps-jbmx.onrender.com');
+      res.setHeader('Access-Control-Allow-Methods', 'POST, GET, OPTIONS');
+      res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
+      return res.json({ error: 'Incorrect Password.' });
       }
 
   }catch(error){
