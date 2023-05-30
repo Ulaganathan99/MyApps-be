@@ -12,6 +12,7 @@ connectDb();
 const app = express();
 app.use(express.json());
 app.use(cookieParser());
+console.log('in app.js');
 
 app.use(cors({
   origin:'*', 
