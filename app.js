@@ -12,15 +12,9 @@ connectDb();
 const app = express();
 app.use(express.json());
 app.use(cookieParser());
-console.log('in app.js');
+console.log('in test-1');
 
-app.use(cors({
-  origin:'*', 
-   credentials:true,            //access-control-allow-credentials:true
-   optionSuccessStatus:200,
-  methods: 'GET, POST, OPTIONS',
-  allowedHeaders: 'Content-Type',
-}));
+app.use(cors(corsOptions));
 
 app.use(express.urlencoded({extended:false}))  //it is importent to get req boy from browser
 
