@@ -13,7 +13,11 @@ const app = express();
 app.use(express.json());
 app.use(cookieParser());
 
-app.use(cors());
+app.use(cors({
+  origin: 'https://myapps-jbmx.onrender.com',
+  methods: 'GET, POST, OPTIONS',
+  allowedHeaders: 'Content-Type',
+}));
 
 app.use(express.urlencoded({extended:false}))  //it is importent to get req boy from browser
 
