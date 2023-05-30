@@ -14,7 +14,9 @@ app.use(express.json());
 app.use(cookieParser());
 
 app.use(cors({
-  origin: 'https://myapps-jbmx.onrender.com',
+  origin:'*', 
+   credentials:true,            //access-control-allow-credentials:true
+   optionSuccessStatus:200,
   methods: 'GET, POST, OPTIONS',
   allowedHeaders: 'Content-Type',
 }));
