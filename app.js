@@ -51,6 +51,7 @@ const deleteExpiredUsers = async () => {
 
       } else {
         console.log('No expired users found');
+        console.log('core changes');
       }
     } catch (error) {
       console.error('Error deleting expired users:', error);
