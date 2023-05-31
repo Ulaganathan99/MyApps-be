@@ -9,6 +9,10 @@ const contactSchema = new Schema({
   number: {
     type: String,
     required: true
+  },
+  isUser: {
+    type: Boolean,
+    required: true
   }
 });
 

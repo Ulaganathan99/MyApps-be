@@ -12,7 +12,6 @@ connectDb();
 const app = express();
 app.use(express.json());
 app.use(cookieParser());
-console.log('in test-1');
 
 app.use(cors(corsOptions));
 
@@ -21,6 +20,7 @@ app.use(express.urlencoded({extended:false}))  //it is importent to get req boy 
 
 app.use('/user', require("./routes/user"))
 app.use('/contact', require("./routes/contact"))
+app.use('/chat', require("./routes/chat"))
 
 const deleteExpiredUsers = async () => {
     try {

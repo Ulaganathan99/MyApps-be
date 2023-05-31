@@ -8,7 +8,7 @@ router.post('/login', userController.login)
 router.post('/signup', userController.signup)
 router.post('/signup-verification', userController.signupVerification)
 router.post('/editProfile',authenticate, userController.editProfile)
-// router.post('/forgot',userController.forgot)
+router.post('/deleteProfile',authenticate, userController.deleteProfile)
 
 router.post('/fetchUserInfo',authenticate, userController.getUserInfo)
 module.exports = router;
