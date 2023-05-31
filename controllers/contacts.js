@@ -15,7 +15,13 @@ exports.addContact = asyncHandler(async (req, res) => {
   } else if (isContactNumber) {
     return res.json({ statusCode: 1, error: "Contact number already saved." });
   } else {
-    dbUser.contacts.push({ name, number });
+    const isUser = await User.findOne ({ number })
+    if(isUser){
+      dbUser.contacts.push({ name, number, isUser : true });
+    } else {
+      dbUser.contacts.push({ name, number, isUser : false });
+    }
+    
     await dbUser.save();
     return res.json({ statusCode: 1, success: "Contact saved successfully." });
   }

@@ -29,14 +29,17 @@ function generateUserId() {
 
 
 exports.signup = asyncHandler(async (req, res) => {
-  const { name, email, password } = req.body;
+  const { name, email, number, password } = req.body;
   if (!name || !email || !password) {
     return res.json({ error: "All Fields are Mandatory." });
   }
-  const userAvailable = await User.findOne({ email });
-  if (userAvailable) {
+  const userAvailableEmail = await User.findOne({ email });
+  const userAvailableNumber = await User.findOne({ number });
+  if (userAvailableEmail) {
     return res.json({ error: "Email already Registered." });
-  } else {
+  } else if(userAvailableNumber){
+    return res.json({ error: "Number already Registered." });
+  }else{
     const hashPassword = await bcrypt.hash(password, 10);
     function generateOTP() {
       let otp = "";
@@ -52,6 +55,7 @@ exports.signup = asyncHandler(async (req, res) => {
     const user = new User({
       name,
       email,
+      number,
       password: hashPassword,
       otp,
       otpExpires,
@@ -169,10 +173,7 @@ exports.login =asyncHandler(async(req,res) => {
             session_id : token
             });            
       }else {
-      //   res.setHeader('Access-Control-Allow-Origin', 'https://myapps-jbmx.onrender.com');
-      // res.setHeader('Access-Control-Allow-Methods', 'POST, GET, OPTIONS');
-      // res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
-      return res.json({ error: 'Incorrect Password.' });
+        return res.json({ error: 'Incorrect Password.' });
       }
 
   }catch(error){
@@ -197,7 +198,7 @@ exports.getUserInfo =asyncHandler(async(req,res) => {
 
 })
 
-exports.editProfile = asyncHandler(async(req,res,next) => {
+exports.editProfile = asyncHandler(async(req,res) => {
   
     const {userID, name, avatar} = req.body
     User.findOne({ userID })
@@ -238,9 +239,22 @@ exports.editProfile = asyncHandler(async(req,res,next) => {
     // Handle the error
     return res.json({ error: 'Error.' });
   });
+ 
+})
 
+exports.deleteProfile = asyncHandler(async(req,res) => {
+  const {userID} = req.body
+  console.log(req.body);
+  console.log('delete');
+  console.log(userID);
+  const dbUser = await User.findOne({ userID })
+        if(dbUser){
+            await User.deleteOne({ userID });
+            return res.status(200).json({ statusCode: 1, success: 'Account Deleted.' });
 
-    
+        }
+        return res.status(500).send('Server error');
+
 })
 
 

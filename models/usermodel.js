@@ -1,4 +1,5 @@
 
+const chatSchema = require('./chatmodel')
 const contactSchema = require('./contactmodel')
 
 const mongoose = require('mongoose')
@@ -16,6 +17,11 @@ const userSchema = mongoose.Schema({
         type:String,
         required: [true, "Please add the user email address"],
         unique: [true, "Email address already registered"]
+    },
+    number: {
+        type:String,
+        required: [true, "Please add the Number"],
+        unique: [true, "Number already registered"]
     },
     password: {
         type:String,
@@ -38,7 +44,8 @@ const userSchema = mongoose.Schema({
         data: Buffer,
         contentType: String
     },
-    contacts: [contactSchema]
+    contacts: [contactSchema],
+    chats: [chatSchema]
 }, {
     timestamps: true
 })
