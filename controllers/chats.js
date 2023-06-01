@@ -21,22 +21,22 @@ exports.getInviteContacts = asyncHandler(async (req, res) => {
 });
 exports.sendChat = asyncHandler(async (req, res) => {
   try{
-  const { message, sender, receiver } = req.body;
-  const sendUser = await User.findOne({ userID: sender });
+  const { message, owner, receiver } = req.body;
+  const ownerUser = await User.findOne({ userID: owner });
   const receiveUser = await User.findOne({ number: receiver });
 
-  if (!sendUser || !receiveUser) {
+  if (!ownerUser || !receiveUser) {
     return res.status(404).json({ success: false, message: 'User not found.' });
   }
   // Create a new message object
   const newMessage = {
     message: message,
-    sender: sender,
+    sender: ownerUser.number,
     receiver: receiver,
   };
   // Update the sendUser's database with the new message
-  sendUser.messages.push(newMessage);
-  await sendUser.save();
+  ownerUser.messages.push(newMessage);
+  await ownerUser.save();
 
   // Update the receiveUser's database with the new message
   receiveUser.messages.push(newMessage);
@@ -50,18 +50,22 @@ exports.sendChat = asyncHandler(async (req, res) => {
 });
 exports.getChat = asyncHandler(async (req, res) => {
   try {
-    const { sender, receiver } = req.body;
+    const { owner, receiver } = req.body;
 
-    const sendUser = await User.findOne({ userID: sender });
+    const ownerUser = await User.findOne({ userID: owner });
 
     // Check if sender exists
-    if (!sendUser) {
+    if (!ownerUser) {
       return res.status(404).json({ success: false, message: 'Sender not found.' });
     }
 
     // Find the messages between the sender and receiver
-    const messages = sendUser.messages.filter(
-      (message) => message.sender === sender && message.receiver === receiver
+    const sendMessages = ownerUser.messages.filter(
+      (message) => message.sender === ownerUser.number && message.receiver === receiver
+    );
+
+    const receiveMessages = ownerUser.messages.filter(
+      (message) => message.sender === receiver && message.receiver === ownerUser.number
     );
 
     // Set up change stream
@@ -69,24 +73,29 @@ exports.getChat = asyncHandler(async (req, res) => {
     changeStream.on('change', (change) => {
       if (
         change.operationType === 'update' &&
-        change.fullDocument.userID === sender &&
+        change.fullDocument &&
+        change.fullDocument.userID === owner &&
         change.fullDocument.number === receiver
       ) {
         // Retrieve the updated document
         const updatedDocument = change.fullDocument;
 
         // Extract the messages field from the updated document
-        const updatedMessages = updatedDocument.messages.filter(
-          (message) => message.sender === sender && message.receiver === receiver
+        const updatedSendMessages = updatedDocument.messages.filter(
+          (message) => message.sender === ownerUser.number && message.receiver === receiver
         );
-
+        const updatedReceivedMessages = updatedDocument.messages.filter(
+          (message) => message.sender === receiver && message.receiver === ownerUser.number
+        );
+          console.log(updatedReceivedMessages);
+          console.log(updatedReceivedMessages);
         // Send the updated messages to the client
-        res.status(200).json({ statusCode: 2, messages: updatedMessages });
+        res.status(200).json({ statusCode: 2, updatedSendMessages, updatedReceivedMessages });
       }
     });
 
     // Return the initial messages to the frontend
-    res.status(200).json({ statusCode: 1, messages });
+    res.status(200).json({ statusCode: 1, sendMessages, receiveMessages });
 
   } catch (err) {
     console.log(err);

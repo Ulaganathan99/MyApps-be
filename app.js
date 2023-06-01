@@ -4,6 +4,7 @@ const dotenv = require("dotenv").config();
 const connectDb = require('./config/mongoDB');
 const cookieParser = require('cookie-parser');
 const cors = require('cors');
+const socket = require('socket.io')
 const corsOptions= require('./config/corsOptions');
 const User = require('./models/usermodel');
 
@@ -16,6 +17,7 @@ app.use(cookieParser());
 app.use(cors(corsOptions));
 
 app.use(express.urlencoded({extended:false}))  //it is importent to get req boy from browser
+
 
 
 app.use('/user', require("./routes/user"))
@@ -56,6 +58,25 @@ const deleteExpiredUsers = async () => {
   setInterval(deleteExpiredUsers, 60 * 1000);
 
 
-app.listen(3000, () => {
+const server = app.listen(3000, () => {
     console.log("Server runs at port 3000");
+})
+
+const io = socket(server, {
+  cors: {
+    origin: 'http://localhost:4200', // Adjust this to match your Angular application's URL
+    methods: ['GET', 'POST'],
+    allowedHeaders: ['Content-Type']
+  }
+})
+
+io.on('connection', (socket) => {
+  console.log(`New Connection ${socket.id}`);
+
+  socket.on('chat', function(data) {
+    io.sockets.emit('chat', data)
+  })
+  socket.on('typing', function(data) {
+    io.sockets.emit('typing', data)
+  })
 })
