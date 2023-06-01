@@ -64,7 +64,7 @@ const server = app.listen(3000, () => {
 
 const io = socket(server, {
   cors: {
-    origin: 'http://localhost:4200', // Adjust this to match your Angular application's URL
+    origin:['http://localhost:4200', 'https://myapps-jbmx.onrender.com'], // Adjust this to match your Angular application's URL
     methods: ['GET', 'POST'],
     allowedHeaders: ['Content-Type']
   }
