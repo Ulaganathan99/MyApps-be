@@ -7,6 +7,7 @@ router.post('/getChatContacts',authenticate, chatController.getChatContacts)
 router.post('/getInviteContacts',authenticate, chatController.getInviteContacts)
 router.post('/sendChatMsg',authenticate, chatController.sendChat)
 router.post('/getChatMsg',authenticate, chatController.getChat)
+router.post('/deleteChatHistory',authenticate, chatController.deleteChatHistory)
 
 
 module.exports = router;
