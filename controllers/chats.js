@@ -67,37 +67,27 @@ exports.getChat = asyncHandler(async (req, res) => {
     const receiveMessages = ownerUser.messages.filter(
       (message) => message.sender === receiver && message.receiver === ownerUser.number
     );
-
-    // Set up change stream
-    const changeStream = User.collection.watch();
-    changeStream.on('change', (change) => {
-      if (
-        change.operationType === 'update' &&
-        change.fullDocument &&
-        change.fullDocument.userID === owner &&
-        change.fullDocument.number === receiver
-      ) {
-        // Retrieve the updated document
-        const updatedDocument = change.fullDocument;
-
-        // Extract the messages field from the updated document
-        const updatedSendMessages = updatedDocument.messages.filter(
-          (message) => message.sender === ownerUser.number && message.receiver === receiver
-        );
-        const updatedReceivedMessages = updatedDocument.messages.filter(
-          (message) => message.sender === receiver && message.receiver === ownerUser.number
-        );
-          console.log(updatedReceivedMessages);
-          console.log(updatedReceivedMessages);
-        // Send the updated messages to the client
-        res.status(200).json({ statusCode: 2, updatedSendMessages, updatedReceivedMessages });
-      }
-    });
-
     // Return the initial messages to the frontend
     res.status(200).json({ statusCode: 1, sendMessages, receiveMessages });
 
   } catch (err) {
+    console.log(err);
+    res.status(500).json({ success: false, message: 'Failed to retrieve messages.' });
+  }
+})
+
+exports.deleteChatHistory = asyncHandler(async (req, res) => {
+  try{
+    const { owner, receiver } = req.body;
+
+    const ownerUser = await User.findOne({ userID: owner });
+
+    // Check if sender exists
+    if (!ownerUser) {
+      return res.status(404).json({ success: false, message: 'Sender not found.' });
+    }
+
+  } catch(err){
     console.log(err);
     res.status(500).json({ success: false, message: 'Failed to retrieve messages.' });
   }
