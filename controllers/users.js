@@ -192,7 +192,8 @@ exports.getUserInfo =asyncHandler(async(req,res) => {
       userID: dbUser.userID,
       name: dbUser.name,
       email: dbUser.email,
-      avatar: dbUser.avatar
+      avatar: dbUser.avatar,
+      number: dbUser.number
     }
   });  
 

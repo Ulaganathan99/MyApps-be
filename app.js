@@ -69,10 +69,27 @@ const io = socket(server, {
     allowedHeaders: ['Content-Type']
   }
 })
+// Maintain a list of connected clients and their online status
+const connectedClients = {};
 
 io.on('connection', (socket) => {
   console.log(`New Connection ${socket.id}`);
-
+socket.on('updatedOnlineStatus', function(data) {
+  console.log('updateStatus');
+  io.sockets.emit('updatedOnlineStatus', connectedClients)
+})
+socket.on('online', function(data) {
+  connectedClients[data.userNumber] = { online: 'online' };
+  console.log(connectedClients);
+  io.sockets.emit('online', data)
+})
+socket.on('disConnect', function(data) {
+  console.log(data);
+  connectedClients[data.userNumber] = { online: 'offline' };
+  console.log(connectedClients);
+  io.sockets.emit('disConnect', data)
+  delete connectedClients[data.userId];
+})
   socket.on('chat', function(data) {
     io.sockets.emit('chat', data)
   })
