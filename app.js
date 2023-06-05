@@ -86,9 +86,10 @@ socket.on('online', function(data) {
 socket.on('disConnect', function(data) {
   console.log(data);
   connectedClients[data.userNumber] = { online: 'offline' };
-  console.log(connectedClients);
+  
   io.sockets.emit('disConnect', data)
   delete connectedClients[data.userId];
+  console.log(connectedClients);
 })
   socket.on('chat', function(data) {
     io.sockets.emit('chat', data)
