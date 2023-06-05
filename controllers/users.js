@@ -50,7 +50,6 @@ exports.signup = asyncHandler(async (req, res) => {
     }
 
     const otp = generateOTP();
-    console.log(otp);
     const otpExpires = new Date(Date.now() + 15 * 60 * 1000); // OTP valid for 15 minutes
     const user = new User({
       name,
@@ -187,6 +186,7 @@ exports.getUserInfo =asyncHandler(async(req,res) => {
   const { user_id } = req.body;
   const dbUser = await User.findOne({ userID : user_id })
    res.status(200).json({
+    statusCode: 1,
     success: true,
     data: {
       userID: dbUser.userID,
@@ -208,7 +208,6 @@ exports.editProfile = asyncHandler(async(req,res) => {
       // User not found
       return res.status(404).json({ error: 'User not found' });
     }
-    console.log(user);
 
     if(name){
       user.name = name
@@ -245,9 +244,6 @@ exports.editProfile = asyncHandler(async(req,res) => {
 
 exports.deleteProfile = asyncHandler(async(req,res) => {
   const {userID} = req.body
-  console.log(req.body);
-  console.log('delete');
-  console.log(userID);
   const dbUser = await User.findOne({ userID })
         if(dbUser){
             await User.deleteOne({ userID });

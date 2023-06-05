@@ -77,7 +77,7 @@ exports.getChat = asyncHandler(async (req, res) => {
 })
 
 exports.deleteChatHistory = asyncHandler(async (req, res) => {
-  try{
+  try {
     const { owner, receiver } = req.body;
 
     const ownerUser = await User.findOne({ userID: owner });
@@ -87,8 +87,15 @@ exports.deleteChatHistory = asyncHandler(async (req, res) => {
       return res.status(404).json({ success: false, message: 'Sender not found.' });
     }
 
-  } catch(err){
+    // Delete all data in the chats array
+    ownerUser.messages = [];
+
+    // Save the updated user
+    await ownerUser.save();
+
+    res.status(200).json({  statusCode: 1, message: 'Chat history deleted successfully.' });
+  } catch (err) {
     console.log(err);
-    res.status(500).json({ success: false, message: 'Failed to retrieve messages.' });
+    res.status(500).json({ success: false, message: 'Failed to delete chat history.' });
   }
 })
