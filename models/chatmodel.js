@@ -3,6 +3,10 @@ const { Schema } = mongoose;
 
 const chatSchema = new Schema(
   {
+    // senderTo: {
+    //   type: String,
+    //   required: true,
+    // },
     sender: {
       type: String,
       required: true,

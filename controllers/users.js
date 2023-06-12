@@ -202,26 +202,38 @@ exports.getUserInfo =asyncHandler(async(req,res) => {
 exports.editProfile = asyncHandler(async(req,res) => {
   
     const {userID, name, avatar} = req.body
-    User.findOne({ userID })
-  .then((user) => {
-    if (!user) {
+    const dbUser = await User.findOne({ userID : user_id })
+
+ 
+    if (!dbUser) {
       // User not found
       return res.status(404).json({ error: 'User not found' });
     }
 
     if(name){
-      user.name = name
+      dbUser.name = name
     }
     if(avatar){
-      user.avatar.data = avatar.data,
-      user.avatar.contentType = avatar.contentType;
+      dbUser.avatar.data = avatar.data,
+      dbUser.avatar.contentType = avatar.contentType;
+        await User.updateOne({ email:useremail },{name:req.body.name, avatar:req.file.filename},(err,result) => {
+                    if(err){
+                        console.log(err);
+                    }
+                    filename=dbuser.avatar
+                    fs.unlink('public/uploads/'+filename,(err)=>{
+                        if(err){
+                            console.log(err);
+                        }
+                    })
+                    res.status(200).redirect("/profile")
+                })
     }
 
     // Save the updated user
     return user.save();
-    
-  })
-  .then(async () => {
+
+ 
     // Avatar data updated successfully
     const userDetails = await User.findOne({ userID })
 
@@ -234,11 +246,11 @@ exports.editProfile = asyncHandler(async(req,res) => {
         user_email: userDetails.email
       },
       });    
-  })
-  .catch((err) => {
-    // Handle the error
-    return res.json({ error: 'Error.' });
-  });
+
+  // .catch((err) => {
+  //   // Handle the error
+  //   return res.json({ error: 'Error.' });
+  // });
  
 })
 

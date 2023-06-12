@@ -1,5 +1,7 @@
 const mongoose = require('mongoose');
 const { Schema } = mongoose;
+const chatSchema = require('./chatmodel')
+
 
 const contactSchema = new Schema({
   name: {
@@ -13,6 +15,10 @@ const contactSchema = new Schema({
   isUser: {
     type: Boolean,
     required: true
+  },
+  messages: {
+    type: [chatSchema],
+    default: []
   }
 });
 

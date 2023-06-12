@@ -45,7 +45,6 @@ const userSchema = mongoose.Schema({
         contentType: String
     },
     contacts: [contactSchema],
-    messages: [chatSchema]
 }, {
     timestamps: true
 })

@@ -1,6 +1,7 @@
 const asyncHandler = require("express-async-handler");
 const User = require("../models/usermodel");
 const Contact = require("../models/contactmodel");
+const exceljs = require('exceljs')
 
 exports.addContact = asyncHandler(async (req, res) => {
   const userID = req.body.userID;
@@ -34,6 +35,36 @@ exports.getContact = asyncHandler(async (req, res) => {
   return res.json({ statusCode: 1, contactList });
 });
 
+exports.getContactTable = asyncHandler(async (req, res) => {
+  console.log(req.body);
+  const  userID  = req.body.userID;
+  const dbUser = await User.findOne({ userID });
+  const { pageIndex, pageSize, searchText } = req.body.pageSize;
+
+  const startIndex = pageIndex * pageSize - pageSize;
+  const endIndex = pageIndex * pageSize;
+  if(searchText){
+    contactList = dbUser.contacts
+    contactList.sort((a, b) => a.name.localeCompare(b.name));
+    const filteredContactList = contactList.filter(contact => {
+    const regex = new RegExp(searchText, 'i'); // Case-insensitive regular expression
+    return regex.test(contact.name) || regex.test(contact.number);
+  });
+  const totalRecords = filteredContactList.length
+  const paginatedContactList = filteredContactList.slice(startIndex, endIndex);
+  return res.json({ statusCode: 1, contactList: paginatedContactList, totalRecords });
+  }else{
+    contactList = dbUser.contacts
+    contactList.sort((a, b) => a.name.localeCompare(b.name));
+    const paginatedContactList = contactList.slice(startIndex, endIndex);
+    paginatedContactList.sort((a, b) => a.name.localeCompare(b.name));
+    const totalRecords = dbUser.contacts.length
+    return res.json({ statusCode: 1, contactList: paginatedContactList, totalRecords });
+  }
+  
+  console.log(totalRecords);
+});
+
 exports.deleteContact = asyncHandler(async (req, res) => {
   console.log(req.body);
   try {
@@ -50,7 +81,54 @@ exports.deleteContact = asyncHandler(async (req, res) => {
   }
 });
 
-exports.editContact = asyncHandler(async (req, res) => {});
+exports.editContact = asyncHandler(async (req, res) => {
+  try{
+
+    const userID = req.body.userID;
+    const dbUser = await User.findOne({ userID });
+    const contactName = req.body.contactName.trim()
+    const contactNumber= req.body.contactNumber.trim()
+    const isContactName = dbUser.contacts.find(c => c.name === edit_name);
+    const isContactNumber = dbUser.contacts.find(c => c.number === edit_number);
+
+    if (isContactName) {
+      return res.json({ statusCode: 1, error: "Contact name already saved." });
+    } else if (isContactNumber) {
+      return res.json({ statusCode: 1, error: "Contact number already saved." });
+    } 
+    if(contactName || contactNumber){
+      const contact = dbUser.contacts.find(c => c._id == contactId);
+          if (contact) {
+          if(edit_name && edit_number){
+              if(edit_number.length != 10){
+                  return res.render('editContact',{user: dbuser,contact, msg:"Invalid Contact Number", msg_type:"error"})
+              }
+          contact.name = edit_name
+          contact.number = edit_number
+          await dbuser.save();
+          res.status(200).redirect("/contact")
+          } else if(edit_name){
+              contact.name = edit_name
+              await dbuser.save();
+              res.status(200).redirect("/contact")
+          }else if(edit_number){
+              if(edit_number.length != 10){
+                  return res.render('editContact',{user: dbuser,contact, msg:"Invalid Contact Number", msg_type:"error"})
+              }
+              contact.number = edit_number
+              await dbuser.save();
+              res.status(200).redirect("/contact")
+          }
+          
+          } 
+  }else{
+      // res.status(400).redirect("/editContact/"+contactId)
+      return res.render('editContact',{user: dbuser,contact, msg:"Invalid Inputs", msg_type:"error"})
+  }
+  } catch (err){
+    console.log(err);
+  }
+});
 
 exports.deleteAllContacts = asyncHandler(async (req, res) => {
   try {
@@ -85,3 +163,41 @@ exports.deleteAllContacts = asyncHandler(async (req, res) => {
     res.status(500).json({ success: false, error: error.message });
   }
 });
+exports.download =  asyncHandler(async(req,res) => {
+console.log('download');
+  const userID = req.body.userID;
+  const dbUser = await User.findOne({ userID });
+  const contacts = dbUser.contacts
+
+  try {
+      if (!contacts || contacts.length === 0) {
+          return res.status(404).json({ message: 'Contacts not found' });
+        } 
+        // create a new workbook and worksheet
+        const workbook = new exceljs.Workbook();
+        const worksheet = workbook.addWorksheet('Contacts');
+        // define the columns
+        worksheet.columns = [
+          { header: 'Name', key: 'name', width: 25 },
+          { header: 'Phone Number', key: 'number', width: 25 },
+          // add more columns if necessary
+        ];  
+        // add the rows
+        contacts.forEach(contact => {
+          worksheet.addRow({
+            name: contact.name,
+            number: contact.number,
+            // add more fields if necessary
+          });
+        });   
+        // write the workbook to a buffer
+        const buffer = await workbook.xlsx.writeBuffer();  
+        // set the headers for the response
+        res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+        res.setHeader('Content-Disposition', 'attachment; filename=contacts.xlsx'); 
+        // send the buffer as the response
+        res.send(buffer);
+    } catch (err) {
+      console.log(err);
+    }
+})
