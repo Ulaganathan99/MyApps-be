@@ -4,6 +4,7 @@ const chatController = require('../controllers/chats');
 const authenticate = require('../middleware/authenticate');
 
 router.post('/getChatContacts',authenticate, chatController.getChatContacts)
+router.post('/getAllChatContacts',authenticate, chatController.getAllChatContacts)
 router.post('/getInviteContacts',authenticate, chatController.getInviteContacts)
 router.post('/sendChatMsg',authenticate, chatController.sendChat)
 router.post('/getChatMsg',authenticate, chatController.getChat)

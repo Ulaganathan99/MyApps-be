@@ -7,6 +7,15 @@ exports.getChatContacts = asyncHandler(async (req, res) => {
   const { userID } = req.body;
   const dbUser = await User.findOne({ userID });
   const chatContactList = dbUser.contacts.filter(
+    (contact) => contact.isUser === true && contact.messages.length !== 0
+  );
+
+  return res.json({ statusCode: 1, chatContactList });
+});
+exports.getAllChatContacts = asyncHandler(async (req, res) => {
+  const { userID } = req.body;
+  const dbUser = await User.findOne({ userID });
+  const chatContactList = dbUser.contacts.filter(
     (contact) => contact.isUser === true
   );
   return res.json({ statusCode: 1, chatContactList });
@@ -21,28 +30,40 @@ exports.getInviteContacts = asyncHandler(async (req, res) => {
 });
 exports.sendChat = asyncHandler(async (req, res) => {
   try{
-  const { message, owner, receiver } = req.body;
+    const { message, owner, receiver } = req.body;
   const ownerUser = await User.findOne({ userID: owner });
   const receiveUser = await User.findOne({ number: receiver });
-
   if (!ownerUser || !receiveUser) {
-    return res.status(404).json({ success: false, message: 'User not found.' });
-  }
-  // Create a new message object
+        return res.status(404).json({ success: false, message: 'User not found.' });
+      }
   const newMessage = {
-    message: message,
-    sender: ownerUser.number,
-    receiver: receiver,
-  };
-  // Update the sendUser's database with the new message
-  ownerUser.messages.push(newMessage);
-  await ownerUser.save();
+      sender: ownerUser.number,
+      receiver: receiver,
+      message: message,
+      };
+     // Find the specific contact in ownerUser's contacts
+    const ownerContact = ownerUser.contacts.find(contact => contact.number === receiver);
+    if (!ownerContact) {
+      return res.status(404).json({ success: false, message: 'Contact owner not found.' });
+    }
+    
+    // Find the specific contact in receiveUser's contacts
+    const receiveContact = receiveUser.contacts.find(contact => contact.number === ownerUser.number);
+    if (!receiveContact) {
+      return res.status(404).json({ success: false, message: 'Contact receive not found.' });
+    }
+    
+    // Push the newMessage into the messages array of ownerContact
+    ownerContact.messages.push(newMessage);
+    await ownerUser.save();
+    
+    // Push the newMessage into the messages array of receiveContact
+    receiveContact.messages.push(newMessage);
+    await receiveUser.save();
 
-  // Update the receiveUser's database with the new message
-  receiveUser.messages.push(newMessage);
-  await receiveUser.save();
- console.log('stored success');
- res.status(200).json({ statusCode: 1 });
+    console.log('Message stored successfully');
+    res.status(200).json({ statusCode: 1 });
+
 } catch (err) {
   console.log(err);
   res.status(500).json({ success: false, message: 'Failed to store message.' });
@@ -54,45 +75,57 @@ exports.getChat = asyncHandler(async (req, res) => {
 
     const ownerUser = await User.findOne({ userID: owner });
 
-    // Check if sender exists
     if (!ownerUser) {
-      return res.status(404).json({ success: false, message: 'Sender not found.' });
+      return res.status(404).json({ success: false, message: 'User not found.' });
     }
 
-    // Find the messages between the sender and receiver
-    const sendMessages = ownerUser.messages.filter(
-      (message) => message.sender === ownerUser.number && message.receiver === receiver
-    );
+    if (!ownerUser.contacts || !Array.isArray(ownerUser.contacts)) {
+      return res.status(400).json({ success: false, message: 'Invalid contacts data.' });
+    }
 
-    const receiveMessages = ownerUser.messages.filter(
-      (message) => message.sender === receiver && message.receiver === ownerUser.number
-    );
-    // Return the initial messages to the frontend
+    const sendMessages = ownerUser.contacts.reduce((result, contact) => {
+      if (
+        contact.number === receiver &&
+        Array.isArray(contact.messages)
+      ) {
+        const messages = contact.messages.filter(
+          (message) => message.sender === ownerUser.number && message.receiver === receiver
+        );
+        result.push(...messages);
+      }
+      return result;
+    }, []);
+
+    const receiveMessages = ownerUser.contacts.reduce((result, contact) => {
+      if (
+        contact.number === receiver &&
+        Array.isArray(contact.messages)
+      ) {
+        const messages = contact.messages.filter(
+          (message) => message.sender === receiver && message.receiver === ownerUser.number
+        );
+        result.push(...messages);
+      }
+      return result;
+    }, []);
+
     res.status(200).json({ statusCode: 1, sendMessages, receiveMessages });
-
   } catch (err) {
     console.log(err);
     res.status(500).json({ success: false, message: 'Failed to retrieve messages.' });
   }
-})
+});
 
 exports.deleteChatHistory = asyncHandler(async (req, res) => {
   try {
     const { owner, receiver } = req.body;
-
     const ownerUser = await User.findOne({ userID: owner });
-
-    // Check if sender exists
     if (!ownerUser) {
       return res.status(404).json({ success: false, message: 'Sender not found.' });
     }
-
-    // Delete all data in the chats array
-    ownerUser.messages = [];
-
-    // Save the updated user
+    const ownerContact = ownerUser.contacts.find(contact => contact.number === receiver);
+    ownerContact.messages = [];
     await ownerUser.save();
-
     res.status(200).json({  statusCode: 1, message: 'Chat history deleted successfully.' });
   } catch (err) {
     console.log(err);
