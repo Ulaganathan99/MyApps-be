@@ -41,8 +41,7 @@ const userSchema = mongoose.Schema({
         type: Number
     },
     avatar: {
-        data: Buffer,
-        contentType: String
+        type: String
     },
     contacts: [contactSchema],
 }, {

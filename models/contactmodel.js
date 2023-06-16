@@ -19,6 +19,9 @@ const contactSchema = new Schema({
   messages: {
     type: [chatSchema],
     default: []
+  },
+  avatar: {
+    type: String
   }
 });
 

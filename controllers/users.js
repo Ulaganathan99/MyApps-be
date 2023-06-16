@@ -3,6 +3,8 @@ const bcrypt = require("bcryptjs");
 const User = require("../models/usermodel");
 const nodemailer = require('nodemailer')
 const jwt = require("jsonwebtoken");
+const path = require('path');
+
 
 
 function generateUserId() {
@@ -103,11 +105,11 @@ exports.signupVerification = async (req, res) => {
 
   try {
     // Check if the email exists in the database
-    const user = await User.findOne({ email });
+    const dbUser = await User.findOne({ email });
 
     // Check if the OTP is valid and hasn't expired
     const currentTime = new Date();
-    if (user.otp !== otp || currentTime > user.otpExpires) {
+    if (dbUser.otp !== otp || currentTime > dbUser.otpExpires) {
       return res.status(400).json({ error: 'Invalid OTP.' });
     }
 
@@ -125,14 +127,28 @@ exports.signupVerification = async (req, res) => {
     }
 
     // Activate the user's account
-    user.isVerified = true;
-    user.userID = userId;
-    user.otp = undefined;
-    user.otpExpires = undefined;
+    dbUser.isVerified = true;
+    dbUser.userID = userId;
+    dbUser.otp = undefined;
+    dbUser.otpExpires = undefined;
 
     // Save the user to the database
-    await user.save();
+    await dbUser.save();
+    // Find users whose contact lists include the signup user's number
+  const usersToUpdate = await User.find({ 'contacts.number': dbUser.number });
 
+// Iterate over the users and update their contact details
+  usersToUpdate.forEach(async (user) => {
+  user.contacts.forEach((contact) => {
+    if (contact.number === dbUser.number) {
+      contact.isUser = true;
+    }
+  });
+  // Save the changes to each user
+  await user.save();
+
+
+})
     return res.status(200).json({ statusCode: 1, success: 'Account activated.' });
   } catch (error) {
     console.error(error);
@@ -167,7 +183,8 @@ exports.login =asyncHandler(async(req,res) => {
             user: {     
               user_name: userDetails.name,
               user_id: userDetails.userID,
-              user_email: userDetails.email
+              user_email: userDetails.email,
+              user_logo: userDetails.avatar
             },
             session_id : token
             });            
@@ -200,71 +217,67 @@ exports.getUserInfo =asyncHandler(async(req,res) => {
 })
 
 exports.editProfile = asyncHandler(async(req,res) => {
-  
-    const {userID, name, avatar} = req.body
-    const dbUser = await User.findOne({ userID : user_id })
-
- 
+  console.log(req.body);
+    const userID = req.body.userID;
+    const name = req.body.name;
+    const imageLocation = req.file.path;
+    const dbUser = await User.findOne({ userID })
     if (!dbUser) {
-      // User not found
       return res.status(404).json({ error: 'User not found' });
     }
 
     if(name){
       dbUser.name = name
     }
-    if(avatar){
-      dbUser.avatar.data = avatar.data,
-      dbUser.avatar.contentType = avatar.contentType;
-        await User.updateOne({ email:useremail },{name:req.body.name, avatar:req.file.filename},(err,result) => {
-                    if(err){
-                        console.log(err);
-                    }
-                    filename=dbuser.avatar
-                    fs.unlink('public/uploads/'+filename,(err)=>{
-                        if(err){
-                            console.log(err);
-                        }
-                    })
-                    res.status(200).redirect("/profile")
-                })
+    if(imageLocation){
+      dbUser.avatar = imageLocation
+      console.log(imageLocation);
     }
-
     // Save the updated user
-    return user.save();
+    dbUser.save();
 
- 
-    // Avatar data updated successfully
-    const userDetails = await User.findOne({ userID })
+    if(imageLocation){
+      // Find users whose contact lists include the signup user's number
+    const usersToUpdate = await User.find({ 'contacts.number': dbUser.number });
 
+    // Iterate over the users and update their contact details
+    usersToUpdate.forEach(async (user) => {
+      user.contacts.forEach((contact) => {
+        if (contact.number === dbUser.number) {
+          contact.avatar = imageLocation;
+        }
+      });
+      // Save the changes to each user
+      await user.save();
 
-    return res.json({
-      statusCode: 1,
-      user: {     
-        user_name: userDetails.name,
-        user_id: userDetails.userID,
-        user_email: userDetails.email
-      },
-      });    
-
-  // .catch((err) => {
-  //   // Handle the error
-  //   return res.json({ error: 'Error.' });
-  // });
- 
+    })
+    }
+    
+    const ChangedDbUser = await User.findOne({ userID })
+    
+   return res.json({
+    statusCode: 1, 
+    status: 'Image saved.', 
+    user: {
+      user_id: ChangedDbUser.userID,
+      user_name: ChangedDbUser.name,
+      user_email: ChangedDbUser.email,
+      user_logo: ChangedDbUser.avatar,
+  } });
 })
 
 exports.deleteProfile = asyncHandler(async(req,res) => {
   const {userID} = req.body
   const dbUser = await User.findOne({ userID })
-        if(dbUser){
-            await User.deleteOne({ userID });
-            return res.status(200).json({ statusCode: 1, success: 'Account Deleted.' });
-
-        }
-        return res.status(500).send('Server error');
-
+    if(dbUser){
+        await User.deleteOne({ userID });
+        return res.status(200).json({ statusCode: 1, success: 'Account Deleted.' });
+    }
+    return res.status(500).send('Server error');
 })
 
 
-
+exports.getProfileImg = asyncHandler(async (req, res) => {
+  const imagePath = path.join(__dirname, '..', req.body.imgUrl); // Adjust the path according to your file structure
+  res.sendFile(path.resolve(imagePath));
+});

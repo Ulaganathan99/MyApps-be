@@ -83,13 +83,15 @@ exports.deleteContact = asyncHandler(async (req, res) => {
 
 exports.editContact = asyncHandler(async (req, res) => {
   try{
-
+   console.log('edit');
+   console.log(req.body);
     const userID = req.body.userID;
+    const contactID = req.body.contactID;
     const dbUser = await User.findOne({ userID });
     const contactName = req.body.contactName.trim()
     const contactNumber= req.body.contactNumber.trim()
-    const isContactName = dbUser.contacts.find(c => c.name === edit_name);
-    const isContactNumber = dbUser.contacts.find(c => c.number === edit_number);
+    const isContactName = dbUser.contacts.find(c => c.name === contactName);
+    const isContactNumber = dbUser.contacts.find(c => c.number === contactNumber);
 
     if (isContactName) {
       return res.json({ statusCode: 1, error: "Contact name already saved." });
@@ -97,34 +99,34 @@ exports.editContact = asyncHandler(async (req, res) => {
       return res.json({ statusCode: 1, error: "Contact number already saved." });
     } 
     if(contactName || contactNumber){
-      const contact = dbUser.contacts.find(c => c._id == contactId);
+      const contact = dbUser.contacts.find(c => c._id == contactID);
           if (contact) {
-          if(edit_name && edit_number){
-              if(edit_number.length != 10){
-                  return res.render('editContact',{user: dbuser,contact, msg:"Invalid Contact Number", msg_type:"error"})
+          if(contactName && contactNumber){
+            if(contactNumber.length != 10){
+              return res.json({ statusCode: 1, error: "Invalid Number." });
+            }
+            contact.name = contactName
+            contact.number = contactNumber
+            await dbUser.save();
+            return res.json({ statusCode: 1, success: "Contact Details Updated." });
+          } else if(contactName){
+              contact.name = contactName
+              await dbUser.save();
+              console.log('name');
+              return res.json({ statusCode: 1, success: "Contact Name Updated." });
+            }else if(contactNumber){
+              if(contactNumber.length != 10){
+                return res.json({ statusCode: 1, error: "Invalid Number." });
               }
-          contact.name = edit_name
-          contact.number = edit_number
-          await dbuser.save();
-          res.status(200).redirect("/contact")
-          } else if(edit_name){
-              contact.name = edit_name
-              await dbuser.save();
-              res.status(200).redirect("/contact")
-          }else if(edit_number){
-              if(edit_number.length != 10){
-                  return res.render('editContact',{user: dbuser,contact, msg:"Invalid Contact Number", msg_type:"error"})
-              }
-              contact.number = edit_number
-              await dbuser.save();
-              res.status(200).redirect("/contact")
-          }
+              contact.number = contactNumber
+              await dbUser.save();
+              return res.json({ statusCode: 1, success: "Contact Number Updated." });
+            }
           
           } 
   }else{
-      // res.status(400).redirect("/editContact/"+contactId)
-      return res.render('editContact',{user: dbuser,contact, msg:"Invalid Inputs", msg_type:"error"})
-  }
+      return res.json({ statusCode: 1, error: "Server Error." });
+    }
   } catch (err){
     console.log(err);
   }
