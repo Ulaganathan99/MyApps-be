@@ -18,7 +18,7 @@ exports.addContact = asyncHandler(async (req, res) => {
   } else {
     const isUser = await User.findOne ({ number })
     if(isUser){
-      dbUser.contacts.push({ name, number, isUser : true });
+      dbUser.contacts.push({ name, number, isUser : true, avatar: isUser.avatar });
     } else {
       dbUser.contacts.push({ name, number, isUser : false });
     }
