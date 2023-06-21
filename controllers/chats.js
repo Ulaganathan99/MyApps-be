@@ -7,7 +7,7 @@ exports.getChatContacts = asyncHandler(async (req, res) => {
   const { userID } = req.body;
   const dbUser = await User.findOne({ userID });
   const chatContactList = dbUser.contacts.filter(
-    (contact) => contact.isUser === true && contact.messages.length !== 0
+    (contact) =>  contact.messages.length !== 0
   );
 
   return res.json({ statusCode: 1, chatContactList });
