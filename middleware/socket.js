@@ -41,6 +41,16 @@ function initializeSocket(server) {
     socket.on('typing', function(data) {
       io.sockets.emit('typing', data);
     });
+
+    socket.on('video-chat-request', function(data) {
+      io.sockets.emit('video-chat-request', data);
+    });
+    socket.on('video-chat-accept', function(data) {
+      io.sockets.emit('video-chat-accept', data);
+    });
+    socket.on('video-chat-data', function(data) {
+      io.sockets.emit('video-chat-data', data);
+    });
   });
 }
 
