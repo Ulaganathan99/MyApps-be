@@ -155,7 +155,8 @@ exports.login =asyncHandler(async(req,res) => {
               user_name: userDetails.name,
               user_id: userDetails.userID,
               user_email: userDetails.email,
-              user_logo: userDetails.avatar
+              user_logo: userDetails.avatar,
+              user_number: userDetails.number
             },
             session_id : token,
             message: 'Login Success'
