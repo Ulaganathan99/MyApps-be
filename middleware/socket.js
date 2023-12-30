@@ -6,7 +6,7 @@ const connectedClients = {};
 function initializeSocket(server) {
   const io = socket(server, {
     cors: {
-      origin: ['http://localhost:4200', 'https://myapps-jbmx.onrender.com'], // Adjust this to match your Angular application's URL
+      origin: ['http://localhost:4200', 'https://myapps-jbmx.onrender.com', 'https://myapps-frontend-container.onrender.com'], // Adjust this to match your Angular application's URL
       methods: ['GET', 'POST'],
       allowedHeaders: ['Content-Type']
     }
