@@ -1,0 +1,15 @@
+image: docker:19.03.12
+services:
+    - docker:19.03.12-dind
+
+stages:
+    - Build
+
+build_job:
+    stage: Build
+    script:
+        - echo $CI_REGISTRY_PASSWORD | docker login -u $CI_REGISTRY_USER $CI_REGISTRY --password-stdin
+        - docker build -t $CI_REGISTRY_IMAGE .
+        - docker push $CI_REGISTRY_IMAGE
+        - docker logout
+
