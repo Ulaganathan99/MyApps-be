@@ -15,7 +15,9 @@ app.use(cookieParser());
 app.use(cors(corsOptions));
 
 app.use(express.urlencoded({extended:false}))  //it is importent to get req boy from browser
-
+app.get('/', (req, res) => {
+  res.send("Project running")
+})
 app.use('/user', require("./routes/user"))
 app.use('/contact', require("./routes/contact"))
 app.use('/chat', require("./routes/chat"))
