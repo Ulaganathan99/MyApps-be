@@ -3,7 +3,7 @@ pipeline {
     agent any
     
     environment {
-        DOCKER_IMAGE = 'myapps-image-be'
+        DOCKER_IMAGE = 'myapps-image-be:latest'
         CONTAINER_NAME = 'myapps-container-be'
     }
 
@@ -17,8 +17,7 @@ pipeline {
         stage('Docker Build') {
             steps {
                 script {
-                    def cacheDate = sh(script: 'date +%s', returnStdout: true).trim()
-                    sh "docker build -t ${DOCKER_IMAGE} -f Dockerfile . --no-cache --build-arg CACHE_DATE=${cacheDate}"
+                    sh "docker build -t ${DOCKER_IMAGE} -f Dockerfile ."
                 }
             }
         }
