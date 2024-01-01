@@ -17,7 +17,8 @@ pipeline {
         stage('Docker Build') {
             steps {
                 script {
-                    sh "docker build -t ${DOCKER_IMAGE} -f Dockerfile . --no-cache --build-arg CACHE_DATE=$(date +%s)"  // Build Docker image using your Dockerfile
+                    def cacheDate = sh(script: 'date +%s', returnStdout: true).trim()
+                    sh "docker build -t ${DOCKER_IMAGE} -f Dockerfile . --no-cache --build-arg CACHE_DATE=${cacheDate}"
                 }
             }
         }
