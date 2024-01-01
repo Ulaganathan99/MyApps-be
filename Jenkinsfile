@@ -49,7 +49,6 @@ pipeline {
                 script {
                     sh "docker stop ${CONTAINER_NAME} || true"  // Stop container if running
                     sh "docker rm ${CONTAINER_NAME} || true"    // Remove container if exists
-
                     // Run new container from the updated image based on your Dockerfile
                     sh "docker run -d --name ${CONTAINER_NAME} --env-file ~/environments/myapps-be/.env -p 4222:8080 ${DOCKER_IMAGE}"
                 }
