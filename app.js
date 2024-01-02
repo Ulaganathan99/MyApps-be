@@ -16,7 +16,7 @@ app.use(cors(corsOptions));
 
 app.use(express.urlencoded({extended:false}))  //it is importent to get req boy from browser
 app.get('/', (req, res) => {
-  res.send("Project running docker")
+  res.send("Project running jenkins")
 })
 app.use('/user', require("./routes/user"))
 app.use('/contact', require("./routes/contact"))
