@@ -6,6 +6,7 @@ const cors = require('cors');
 const corsOptions= require('./config/corsOptions');
 const util = require('./common/util')
 const socket = require('./middleware/socket'); 
+const os = require('os')
 
 connectDb();
 const app = express();
@@ -18,6 +19,10 @@ app.use(express.urlencoded({extended:false}))  //it is importent to get req boy 
 app.use('/user', require("./routes/user"))
 app.use('/contact', require("./routes/contact"))
 app.use('/chat', require("./routes/chat"))
+
+app.use('/test', (req, res) => {
+  res.send(`Nodejs project testing ${os.hostname()}`)
+})
   
   // Call deleteExpiredUsers function every hour
   setInterval(util.deleteExpiredUsers, 60 * 1000);

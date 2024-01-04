@@ -9,7 +9,7 @@ WORKDIR /app
 COPY package*.json ./
 
 #Run commend
-RUN npm install
+RUN npm ci
 
 #Bundle app source
 
