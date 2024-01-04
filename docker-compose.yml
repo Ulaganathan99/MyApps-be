@@ -4,7 +4,7 @@ services:
   nodejs:
     build: .
     env_file:
-      - ./.env
+      - ~/environments/myapps-be/.env
     # ports:
     #   - "3000:3000"
 
