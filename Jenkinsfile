@@ -65,7 +65,12 @@ pipeline {
             steps {
                 script {
                     sh "docker-compose up --scale nodejs=3 -d"  // Scale the 'nodejs' service to 3 replicas
-                    
+                }
+            }
+        }
+        stage('Clear Services') {
+            steps {
+                script {
                     // Prune dangling images after deploying the container
 /                   sh "docker image prune -f"
                 }
