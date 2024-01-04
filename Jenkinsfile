@@ -68,13 +68,5 @@ pipeline {
                 }
             }
         }
-        stage('Clear Services') {
-            steps {
-                script {
-                    // Prune dangling images after deploying the container
-/                   sh "docker image prune -f"
-                }
-            }
-        }
     }
 }
