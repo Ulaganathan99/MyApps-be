@@ -44,6 +44,7 @@ pipeline {
     environment {
         DOCKER_IMAGE = 'myapps-image-be:latest'
         CONTAINER_NAME = 'myapps-container-be'
+        ENV_FILE_PATH = "/home/ubuntu/environments/myapps-be/.env"
     }
 
     stages {
@@ -64,6 +65,8 @@ pipeline {
             steps {
                 script {
                     sh 'docker-compose --version'  // Check if docker-compose is accessible
+                    sh 'echo "Current working directory: $(pwd)"'
+                    sh "ls -l ${ENV_FILE_PATH}"
                 }
             }
         }
