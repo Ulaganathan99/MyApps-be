@@ -67,7 +67,6 @@ pipeline {
                 script {
                     sh 'docker-compose --version'  // Check if docker-compose is accessible
                     sh 'echo "Current working directory: $(pwd)"'
-                    sh "ls -l ${ENV_FILE_PATH}"
                 }
             }
         }
