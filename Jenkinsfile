@@ -48,6 +48,13 @@ pipeline {
     }
 
     stages {
+        stage('Preparation') {
+            steps {
+                // Ensure the Jenkins user has access to the .env file
+                sh 'sudo chown jenkins:jenkins /home/ubuntu/environments/myapps-be/.env'
+                sh 'chmod 644 /home/ubuntu/environments/myapps-be/.env'
+            }
+        }
         stage('Checkout') {
             steps {
                 checkout scm  // Check out source code
