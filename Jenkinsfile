@@ -52,6 +52,14 @@ pipeline {
                 checkout scm  // Check out source code
             }
         }
+         stage('Check Docker') {
+            steps {
+                script {
+                    sh 'docker --version'  // Check if docker-compose is accessible
+                }
+            }
+        }
+
         stage('Check Docker Compose') {
             steps {
                 script {
