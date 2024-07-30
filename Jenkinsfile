@@ -82,7 +82,7 @@ pipeline {
         stage('Scale Services') {
             steps {
                 script {
-                    sh "docker-compose up --scale nodejs=3 -d"  // Scale the 'nodejs' service to 3 replicas
+                    sh "docker-compose up -d"  // Scale the 'nodejs' service to 3 replicas
                 }
             }
         }
