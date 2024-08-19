@@ -7,6 +7,19 @@ const corsOptions= require('./config/corsOptions');
 const util = require('./common/util')
 const socket = require('./middleware/socket'); 
 const os = require('os')
+const redis = require('ioredis')
+const REDIS_HOST = '127.0.0.1'
+const REDIS_PORT = process.env.REDIS_PORT || 6379
+
+// const client = redis.createClient(REDIS_HOST,REDIS_PORT)
+
+// client.on('connect', () => {
+//   console.log('Connected to Redis');
+// });
+
+// client.on('error', (err) => {
+//   console.error('Redis connection error:', err);
+// });
 
 connectDb();
 const app = express();
