@@ -35,7 +35,6 @@ exports.signup = asyncHandler(async (req, res) => {
 
     try {
       await user.save();
-
       const transporter = nodemailer.createTransport({
         service: "gmail",
         auth: {
@@ -278,8 +277,11 @@ exports.deleteProfile = asyncHandler(async(req,res) => {
 
 
 exports.getProfileImg = asyncHandler(async (req, res) => {
-  const imagePath = path.join(__dirname, '..', req.body.imgUrl); // Adjust the path according to your file structure
-  res.sendFile(path.resolve(imagePath));
+  if(req.body.imgUrl){
+    const imagePath = path.join(__dirname, '..', req.body.imgUrl); // Adjust the path according to your file structure
+    res.sendFile(path.resolve(imagePath));
+  }
+  
 });
 
 exports.forgot = asyncHandler(async (req, res) => {
