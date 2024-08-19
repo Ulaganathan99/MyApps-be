@@ -44,12 +44,30 @@ pipeline {
     environment {
         DOCKER_IMAGE = 'myapps-image-be:latest'
         CONTAINER_NAME = 'myapps-container-be'
+        ENV_FILE_PATH = "/home/ubuntu/environments/myapps-be/.env"
     }
 
     stages {
+       
         stage('Checkout') {
             steps {
                 checkout scm  // Check out source code
+            }
+        }
+         stage('Check Docker') {
+            steps {
+                script {
+                    sh 'docker --version'  // Check if docker-compose is accessible
+                }
+            }
+        }
+
+        stage('Check Docker Compose') {
+            steps {
+                script {
+                    sh 'docker-compose --version'  // Check if docker-compose is accessible
+                    sh 'echo "Current working directory: $(pwd)"'
+                }
             }
         }
 
@@ -64,7 +82,7 @@ pipeline {
         stage('Scale Services') {
             steps {
                 script {
-                    sh "docker-compose up --scale nodejs=3 -d"  // Scale the 'nodejs' service to 3 replicas
+                    sh "docker-compose up -d"  // Scale the 'nodejs' service to 3 replicas
                 }
             }
         }
