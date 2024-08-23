@@ -36,7 +36,6 @@ exports.getContact = asyncHandler(async (req, res) => {
 });
 
 exports.getContactTable = asyncHandler(async (req, res) => {
-  console.log(req.body);
   const  userID  = req.body.userID;
   const dbUser = await User.findOne({ userID });
   const { pageIndex, pageSize, searchText } = req.body.pageSize;
@@ -61,16 +60,12 @@ exports.getContactTable = asyncHandler(async (req, res) => {
     const totalRecords = dbUser.contacts.length
     return res.json({ statusCode: 1, contactList: paginatedContactList, totalRecords });
   }
-  
-  console.log(totalRecords);
 });
 
 exports.deleteContact = asyncHandler(async (req, res) => {
-  console.log(req.body);
   try {
     const { userID, contactNumber } = req.body;
     const dbUser = await User.findOne({ userID });
-    console.log("contact");
     dbUser.contacts = dbUser.contacts.filter(
       (contact) => contact.number !== contactNumber
     );
@@ -83,8 +78,6 @@ exports.deleteContact = asyncHandler(async (req, res) => {
 
 exports.editContact = asyncHandler(async (req, res) => {
   try{
-   console.log('edit');
-   console.log(req.body);
     const userID = req.body.userID;
     const contactID = req.body.contactID;
     const dbUser = await User.findOne({ userID });
@@ -112,7 +105,6 @@ exports.editContact = asyncHandler(async (req, res) => {
           } else if(contactName){
               contact.name = contactName
               await dbUser.save();
-              console.log('name');
               return res.json({ statusCode: 1, success: "Contact Name Updated." });
             }else if(contactNumber){
               if(contactNumber.length != 10){
@@ -166,7 +158,6 @@ exports.deleteAllContacts = asyncHandler(async (req, res) => {
   }
 });
 exports.download =  asyncHandler(async(req,res) => {
-console.log('download');
   const userID = req.body.userID;
   const dbUser = await User.findOne({ userID });
   const contacts = dbUser.contacts

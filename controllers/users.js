@@ -127,7 +127,6 @@ exports.signupVerification = async (req, res) => {
 };
 
 exports.login =asyncHandler(async(req,res) => { 
-  console.log('login');
   try{
       const { email, password} = req.body;
       if(!email || !password) {
@@ -189,14 +188,12 @@ exports.getUserInfo =asyncHandler(async(req,res) => {
 })
 
 exports.editProfile = asyncHandler(async(req,res) => {
-  console.log(req.body);
     const userID = req.body.userID;
     const name = req.body.name;
     const dbUser = await User.findOne({ userID })
     if (!dbUser) {
       return res.status(404).json({ error: 'User not found' });
     }
-console.log(name);
     if(name){
       dbUser.name = name
     }
@@ -206,7 +203,7 @@ console.log(name);
           if (err) {
             console.error('Error deleting previous image:', err);
           } else {
-            console.log('Previous image deleted successfully');
+            // console.log('Previous image deleted successfully');
           }
         });
         dbUser.avatar = req.file.path;
@@ -219,7 +216,6 @@ console.log(name);
 
     if(req.file){
       const imageLocation = req.file.path;
-      console.log(imageLocation);
       // Find users whose contact lists include the signup user's number
       const usersToUpdate = await User.find({ 'contacts.number': dbUser.number });
 
@@ -279,9 +275,10 @@ exports.deleteProfile = asyncHandler(async(req,res) => {
 exports.getProfileImg = asyncHandler(async (req, res) => {
   if(req.body.imgUrl){
     const imagePath = path.join(__dirname, '..', req.body.imgUrl); // Adjust the path according to your file structure
-    res.sendFile(path.resolve(imagePath));
+     return res.sendFile(path.resolve(imagePath));
+  }else{
+    return res.status(200).json({message: 'Profile Not found'})
   }
-  
 });
 
 exports.forgot = asyncHandler(async (req, res) => {
@@ -358,8 +355,6 @@ exports.forgotVerification = asyncHandler(async (req, res) => {
 })
 
 exports.changePassword = asyncHandler(async (req, res) => {
-  console.log(req.body);
-
   const {email, newPassword} = req.body
   const hashPassword = await bcrypt.hash(newPassword, 10);
   const dbUser = await User.findOne({ email });
