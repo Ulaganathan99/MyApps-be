@@ -34,21 +34,21 @@ exports.generateOTP = () => {
     try {
       const expiredUsers = await User.find({ otpExpires: { $lte: new Date() }, isVerified: false });
       if (expiredUsers.length > 0) {
-        console.log(`Deleting ${expiredUsers.length} expired users`);
+        // console.log(`Deleting ${expiredUsers.length} expired users`);
         for (const user of expiredUsers) {
           await User.deleteOne({ _id: user._id });
         }
-        console.log('Expired users deleted successfully');
+        // console.log('Expired users deleted successfully');
       }
         const expiredOTP = await User.find({ otpExpires: { $lte: new Date() }, isVerified: true });
         if (expiredOTP.length > 0) {
-          console.log(`Deleting ${expiredUsers.length} expired otp`);
+          // console.log(`Deleting ${expiredUsers.length} expired otp`);
           for (const user of expiredVerifiedUsers) {
             user.otp = undefined;
             user.otpExpires = undefined;
             await user.save();
           }
-          console.log('Expired users deleted successfully');
+          // console.log('Expired users deleted successfully');
           
 
       } else {

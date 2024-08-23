@@ -1,7 +1,7 @@
 // socket.js
 
 const socket = require('socket.io');
-const connectedClients = {};
+let connectedClients = {};
 
 function initializeSocket(server) {
   const io = socket(server, {
@@ -16,7 +16,6 @@ function initializeSocket(server) {
     console.log(`New Connection ${socket.id}`);
 
     socket.on('updatedOnlineStatus', function(data) {
-      console.log('updateStatus');
       io.sockets.emit('updatedOnlineStatus', connectedClients);
     });
 
@@ -27,11 +26,9 @@ function initializeSocket(server) {
     });
 
     socket.on('disConnect', function(data) {
-      console.log(data);
       connectedClients[data.userNumber] = { online: 'offline' };
       io.sockets.emit('disConnect', data);
-      delete connectedClients[data.userId];
-      console.log(connectedClients);
+      // delete connectedClients[data.userId];
     });
 
     socket.on('chat', function(data) {
@@ -53,5 +50,8 @@ function initializeSocket(server) {
     });
   });
 }
+function clearSockets(){
+    connectedClients = {}
+}
 
-module.exports = initializeSocket;
+module.exports = { initializeSocket, clearSockets };

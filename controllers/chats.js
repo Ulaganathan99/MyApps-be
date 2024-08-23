@@ -61,7 +61,7 @@ exports.sendChat = asyncHandler(async (req, res) => {
     receiveContact.messages.push(newMessage);
     await receiveUser.save();
 
-    console.log('Message stored successfully');
+    // console.log('Message stored successfully');
     res.status(200).json({ statusCode: 1 });
 
 } catch (err) {

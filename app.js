@@ -32,9 +32,19 @@ app.use(express.urlencoded({extended:false}))  //it is importent to get req boy 
 app.use('/user', require("./routes/user"))
 app.use('/contact', require("./routes/contact"))
 app.use('/chat', require("./routes/chat"))
+app.use('/videos', require("./routes/videos"))
 
 app.use('/test', (req, res) => {
   res.send(`Nodejs project testing ${os.hostname()}`)
+})
+app.post('/clearSocket', (req, res) => {
+  const { userId } = req.body
+  if(userId == '6158R2Z2'){
+    socket.clearSockets()
+    res.send({statusCode: 1, message: 'Socket connection cleared'})
+  } else {
+    res.send({statusCode: 0, message: 'Permission denied'})
+  }
 })
   
   // Call deleteExpiredUsers function every hour
@@ -46,4 +56,4 @@ const server = app.listen(3000, () => {
 })
 
 // Call the initializeSocket function and pass the server instance
-socket(server);
+socket.initializeSocket(server);
