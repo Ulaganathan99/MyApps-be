@@ -1,8 +1,8 @@
 
-const chatSchema = require('./chatmodel')
 const contactSchema = require('./contactmodel')
 
 const mongoose = require('mongoose')
+const driveSchema = require('./drivemodel')
 
 const userSchema = mongoose.Schema({
     userID:{
@@ -44,6 +44,7 @@ const userSchema = mongoose.Schema({
         type: String
     },
     contacts: [contactSchema],
+    drive: [driveSchema]
 }, {
     timestamps: true
 })

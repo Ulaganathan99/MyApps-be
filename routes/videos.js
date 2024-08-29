@@ -5,7 +5,7 @@ const authenticate = require('../middleware/authenticate');
 const upload = require('../middleware/upload');
 
 
-router.post('/upload', videosController.upload)
+router.post('/uploadVideo', videosController.uploadVideo)
 
 
 module.exports = router;
