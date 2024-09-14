@@ -34,6 +34,7 @@ app.use('/contact', require("./routes/contact"))
 app.use('/chat', require("./routes/chat"))
 app.use('/videos', require("./routes/videos"))
 app.use('/drive', require("./routes/drive"))
+app.use('/s3', require("./routes/s3"))
 
 app.use('/test', (req, res) => {
   res.send(`Nodejs project testing ${os.hostname()}`)

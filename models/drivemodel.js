@@ -22,6 +22,9 @@ const driveSchema = new Schema(
     s3Url: {
         type: String,
     },
+    key: {
+      type: String
+    }
   },
   {
     timestamps: true
